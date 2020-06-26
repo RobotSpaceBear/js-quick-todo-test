@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<script language="javascript">
+    var arrayTodos = [];
+
+    function initData() {
+        arrayTodos.push({id: "id1", text: "Element 1", isComplete: false});
+        arrayTodos.push({id: "id2", text: "Element 2", isComplete: true});
+        arrayTodos.push({id: "id3", text: "Element 3", isComplete: false});
+        console.log("data initialized");
+        persistData();
+        displayData();
+    }
+
+    function persistData(){
+        //window.localStorage.setItem("todosArray", arrayTodos);
+        window.localStorage.setItem("todosArray", JSON.stringify(arrayTodos));
+        console.table(arrayTodos);        
+        console.log("data persisted to local storage");
+    }
+
+    function displayData(){
+        clearTodosDisplay();
+
+        var elementUL = document.getElementById("todo-container");   
+        arrayTodos.forEach( todo => {
+
+            //create li and its elements
+            var nouvelLi = document.createElement("LI");
+            nouvelLi.innerText = todo.text;
+            nouvelLi.id = todo.id;
+
+            if(todo.isComplete){
+                nouvelLi.classList.add("complete-todo");
+            } 
+
+            //delete button
+            var nouveauBouton = document.createElement("BUTTON");
+            nouveauBouton.innerText = "X"
+            nouveauBouton.addEventListener("click", deleteTodo);
+            nouveauBouton.id = "delete_" + todo.id;
+
+            //add click event
+            nouvelLi.addEventListener("click", toggleTodoState);
+
+            elementUL.appendChild(nouvelLi);
+            //elementUL.appendChild(nouveauBouton);
+        });
+    }
+
+    function addTodo(){
+        var elementInput = document.getElementById("input-todo");
+        var nouveauTodo = {
+            id: Date.now(), 
+            text: elementInput.value, 
+            isComplete: false
+        };
+
+        arrayTodos.push(nouveauTodo);
+        elementInput.value = "";
+
+        persistData();
+        displayData();
+    }
+
+    function toggleTodoState(e){
+        var idTodo = e.target.id;
+
+        arrayTodos.forEach( todoExistants => {
+            if(todoExistants.id == idTodo){
+                todoExistants.isComplete = !todoExistants.isComplete;
+            }
+        });
+
+        //arrayTodos[idTodo].isComplete = true;
+
+        // var todoToUpdate = arrayTodos.filter( t=> t.id == idTodo)[0]
+        // todoToUpdate.isComplete = !todoToUpdate.isComplete;
+
+        persistData();
+        displayData();
+    }
+
+    function deleteTodo(e){
+        var idTodo = e.target.id;
+
+        // arrayTodos.forEach( todoExistants => {
+        //     if("delete_" + todoExistants.id == idTodo){
+        //         arrayTodos.unshift(todoExistants);
+        //     }
+        // });
+
+        persistData();
+        displayData();
+    }
+
+
+
+    function clearTodosDisplay(){
+        var elementUL = document.getElementById("todo-container");
+
+        while(elementUL.firstChild){
+            elementUL.removeChild(elementUL.firstChild);
+        }
+    }
+</script>
+
+<style>
+.complete-todo{
+    text-decoration: line-through;
+}
+</style>
+
+<body onload="initData()">
+    <div>
+        <input type="text" name="input-todo" id="input-todo">
+        <button onclick="addTodo()">Add</button>
+    </div>
+
+    <div>
+        <ul id="todo-container">
+        </ul>
+    </div>
+</body>
+
+</html>
